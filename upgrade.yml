@@ -1,0 +1,17 @@
+- hosts: all
+  remote_user: root
+  tasks:
+  - name: Apt | Update databases
+    apt: update_cache=yes
+
+  - name: Apt | Upgrade
+    apt: upgrade=dist
+
+  - name: nginx restart
+    action: service name=nginx state=restarted
+
+  - name: mysql restart
+    action: service name=mysql state=restarted
+
+  - name: phpfpm restart
+    action: service name=php-fpm state=restarted

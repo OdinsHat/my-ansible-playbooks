@@ -1,0 +1,137 @@
+- hosts: all
+  user: root
+  vars_files:
+    - vars.yml
+  tasks:
+
+    ##
+    # SSH Setup so SSH key works
+    #
+
+    - name: Upload SSHD config file
+      template: src=templates/etc-ssh-sshd-config.j2 dest=/etc/ssh/sshd_config
+
+    - name: Apt | Update database
+      apt: update_cache=yes
+
+    - name: Apt | Install packages
+      action: apt pkg={{ item }} state=installed
+      with_items:
+        - libmysqlclient-dev
+        - python-mysqldb
+        - python-pip
+        - zsh
+        - zsh-common
+        - python-dev
+        - nginx
+        - php5
+        - php5-gd
+        - php5-fpm
+        - mysql-server
+        - mysql-client
+        - php5-mysql
+        - php-apc
+        - php5-xmlrpc
+        - php5-mcrypt
+        - unzip
+        - locate
+        - curl
+        - git
+        - exuberant-ctags
+        - vim-nox
+        - vim-scripts
+        - tmux
+        - nodejs
+        - npm
+        - nodejs-legacy
+        - php5-cli
+        - rpl
+
+    ##
+    #    MySQL database setup.
+    #
+    - name: MySQL | Configuration file, my.cnf
+      action: template src=templates/etc-mysql-my-cnf.j2 dest=/etc/mysql/my.cnf
+      tags: common
+
+
+     ##
+     #   Setup Git
+     #
+    - name: Git | Setup user.name
+      action: command git config --global user.name "Doug Bromley"
+      tags: common
+
+    - name: Git | Setup user.email
+      action: command git config --global user.email doug.bromley@gmail.com
+      tags: common
+
+    - name: Git | Setup colour ui
+      action: command git config --global color.ui auto
+      tags: common
+
+    ##
+    # Python setup
+    #
+    - name: Install Virtual Env Wrapper
+      action: pip name=virtualenvwrapper
+      tags: common
+
+    - name: Install IPython
+      action: pip name=ipython
+      tags: common
+
+    - name: Install uwsgi
+      action: pip name=uwsgi
+      tags: common
+
+    - name: Install MySQL Python
+      action: pip name=MySQL-python
+      tags: common
+
+    ##
+    # vim Setup
+    #
+    - name: VIM | Copy vimrc
+      action: template src=templates/root-vimrc.j2 dest=/root/.vimrc
+      tags: common
+
+    - name: VIM | Get Vundle repo
+      action: git repo=https://github.com/gmarik/vundle.git dest=/root/.vim/bundle/vundle
+      tags: common
+
+    - name: VIM | Install Bundles
+      action: command vim +BundleInstall +qall
+      tags: common
+
+    ##
+    # Oh My ZSH setup.
+    #
+    - name: ZSH | Get Oh My ZSH
+      action: git repo=git://github.com/robbyrussell/oh-my-zsh.git dest=~/.oh-my-zsh
+      tags: common
+
+    - name: ZSH | Copy zshrc file
+      template: src=templates/zshrc.j2 dest=~/.zshrc
+      tags: common
+
+    - name: ZSH | Set shell to ZSH
+      action: command chsh -s /bin/zsh
+      tags: common
+
+    ##
+    # PHP Config
+    #
+
+    - name: PHP | Configuration file, php.ini
+      action: template src=templates/etc-php5-fpm-php-ini.j2 dest=/etc/php5/fpm/php.ini
+
+    - name: phpfpm restart
+      action: service name=php5-fpm state=restarted
+
+    - name: nginx restart
+      action: service name=nginx state=restarted
+
+    - name: mysql restart
+      action: service name=mysql state=restarted
+
