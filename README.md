@@ -12,3 +12,5 @@ manage to get them to a basic level.
 * Setting up of [Oh My ZSH](https://github.com/robbyrussell/oh-my-zsh)
 
 Then an upgrade playbook for upgrading the packages installed as well as the apt cache.
+
+These plkaybooks have been used and are compatible on Ubuntu 12.04 and Debian 6.0 (Squeeze)
